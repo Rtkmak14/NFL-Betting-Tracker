@@ -14,4 +14,7 @@ class Note(models.Model):
     def __str__(self):
         return f"{self.team}-{self.game_date}"
     
+    def get_absolute_url(self):
+        return reverse('note_detail',kwargs={'pk':self.id})
+
 

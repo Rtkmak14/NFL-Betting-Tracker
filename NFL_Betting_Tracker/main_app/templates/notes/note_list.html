@@ -1,3 +1,16 @@
-{%block content%}
+{% block content %}
 <h1>Note List</h1>
-{%endblock%}
+
+{% for note in notes %}
+    <h2>Game Date: {{note.game_date}}</h2>
+    <ul>
+        <li>Team: {{note.team}}</li>
+        <li>Spread: {{note.spread}}</li>
+        <li>Total: {{note.total}}</li>
+        <li>Moneyline: {{note.moneyline}}</li>
+        <li>Prior Week Winning Margin: {{note.prior_week_winning_margin}}</li>
+        <li>Travel Miles: {{note.travel_miles}}</li>
+    </ul>
+{% endfor %}
+
+{% endblock %}
