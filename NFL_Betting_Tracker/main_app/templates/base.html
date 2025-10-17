@@ -9,7 +9,12 @@
     {% endblock %}
   </head>
   <body>
-     {% block content %} 
-     {% endblock %}
+     <nav>
+        <a href="{% url 'home' %}">Home</a>
+        <a href="{% url 'note_list' %}">My Notes</a>
+        <a href="{% url 'note_create' %}">Add Note</a>
+     </nav>  
+    {% block content %}
+    {% endblock %}
   </body>
 </html>
