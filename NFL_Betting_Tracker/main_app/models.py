@@ -11,6 +11,8 @@ class Note(models.Model):
     prior_week_winning_margin=models.IntegerField()
     travel_miles=models.IntegerField()
 
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+
     def __str__(self):
         return f"{self.team}-{self.game_date}"
     

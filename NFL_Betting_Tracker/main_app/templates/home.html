@@ -1,4 +1,9 @@
 {% extends "base.html" %}
 {%block content%}
-<h1>Home Route</h1>
+<form action={% url 'home' %} method='post'>
+    <h1>Login<h1/>
+    {% csrf_token %} {{form.as_p}}
+    <input type="hidden" name="next" value="{{ next }}"/>
+    <button type="submit">Submit</Button>   
+</form>
 {%endblock%}
