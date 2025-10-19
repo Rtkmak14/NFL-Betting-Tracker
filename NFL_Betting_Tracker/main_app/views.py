@@ -4,6 +4,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 from .models import Note
@@ -38,18 +39,21 @@ def signup(request):
     #     {'form': form, 'error_message': error_message}
     # )
 
-class NoteListView(ListView):
+class NoteListView(LoginRequiredMixin,ListView):
     model = Note
     template_name = 'notes/note_list.html'
     context_object_name = 'notes'
 
-class NoteDetailView(DetailView):
+    def get_queryset(self):
+        return Note.objects.filter(user=self.request.user)
+
+class NoteDetailView(LoginRequiredMixin,DetailView):
     model = Note
     template_name = 'notes/note_detail.html'
     context_object_name = 'note'
 
 
-class NoteCreateView(CreateView):
+class NoteCreateView(LoginRequiredMixin,CreateView):
     model = Note
     fields = ['team', 'game_date', 'spread', 'total', 'moneyline', 'prior_week_winning_margin', 'travel_miles']
     template_name = 'notes/note_form.html'
@@ -58,12 +62,12 @@ class NoteCreateView(CreateView):
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-class NoteUpdateView(UpdateView):
+class NoteUpdateView(LoginRequiredMixin,UpdateView):
     model=Note
     fields = ['team', 'game_date', 'spread', 'total', 'moneyline', 'prior_week_winning_margin', 'travel_miles']
     template_name='notes/note_form.html'
 
-class NoteDeleteView(DeleteView):
+class NoteDeleteView(LoginRequiredMixin,DeleteView):
     model = Note
     template_name = 'notes/note_confirm_delete.html'
     success_url = reverse_lazy('note_list')
