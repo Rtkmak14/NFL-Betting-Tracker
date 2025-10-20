@@ -2,6 +2,7 @@ import requests
 from django.http import JsonResponse
 from datetime import datetime
 
+
 def fetch_team_schedule(team_id=3):
     url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/schedule"
     response = requests.get(url)
@@ -34,16 +35,29 @@ def extract_game_locations(schedule_data):
             opponent = None
 
             for c in competitors:
+                score_obj = c.get("score")
+                score = int(score_obj["value"]) if score_obj and "value" in score_obj else 0
+                
                 if c["team"]["id"] == team_id:
                     home_away = c.get("homeAway")
+                    team_score = score
+
                 else:
                     opponent = c["team"].get("displayName")
+                    opp_score = score
+            
+            margin = team_score - opp_score
+
+  
 
             games.append({
                 "date": game_date.isoformat(),
                 "location": location,
                 "homeAway": home_away,
-                "opponent": opponent
+                "opponent": opponent,
+                "team_score": team_score,
+                "opp_score": opp_score,
+                "margin": margin
             })
 
         except Exception as e:
