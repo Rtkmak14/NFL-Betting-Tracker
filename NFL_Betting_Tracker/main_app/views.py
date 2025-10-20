@@ -45,7 +45,7 @@ class NoteListView(LoginRequiredMixin,ListView):
     context_object_name = 'notes'
 
     def get_queryset(self):
-        return Note.objects.filter(user=self.request.user)
+        return Note.objects.filter(user=self.request.user).order_by('game_date')
 
 class NoteDetailView(LoginRequiredMixin,DetailView):
     model = Note
