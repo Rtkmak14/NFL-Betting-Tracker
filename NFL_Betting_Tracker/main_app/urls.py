@@ -3,6 +3,7 @@ from . import views
 from .views import NoteListView, NoteDetailView, NoteCreateView, NoteUpdateView, NoteDeleteView
 
 
+
 urlpatterns = [
     path('', views.Home.as_view(), name='home'),
     path('accounts/signup/', views.signup, name='signup'),
