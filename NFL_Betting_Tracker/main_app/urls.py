@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import NoteListView, NoteDetailView, NoteCreateView, NoteUpdateView, NoteDeleteView
+from .views import NoteListView, NoteDetailView, NoteCreateView, NoteUpdateView, NoteDeleteView, team_travel_view
 
 
 
@@ -12,4 +12,5 @@ urlpatterns = [
     path('notes/new/', NoteCreateView.as_view(), name='note_create'),
     path('notes/<int:pk>/update', NoteUpdateView.as_view(), name='note_update'),
     path('notes/<int:pk>/delete', NoteDeleteView.as_view(), name='note_delete'),
+    path('test-travel/', team_travel_view, name='test_travel')
 ]

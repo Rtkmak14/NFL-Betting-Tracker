@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-
+from .services import fetch_team_schedule, extract_game_locations
 
 from .models import Note
 
@@ -72,3 +72,8 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
     model = Note
     template_name = 'notes/note_confirm_delete.html'
     success_url = reverse_lazy('note_list')
+
+def team_travel_view(request):
+    schedule_data = fetch_team_schedule(team_id=3)
+    parsed_games = extract_game_locations(schedule_data)
+    return JsonResponse(parsed_games, safe=False)
