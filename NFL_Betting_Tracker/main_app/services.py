@@ -2,7 +2,24 @@ import requests
 from django.http import JsonResponse
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from datetime import datetime
 
+
+def fetch_all_nfl_teams():
+    url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
+    response = requests.get(url)
+    response.raise_for_status()
+    data = response.json()
+
+    teams = []
+    for item in data.get("sports", [])[0].get("leagues", [])[0].get("teams", []):
+        team_info = item.get("team", {})
+        teams.append({
+            "id": int(team_info.get("id")),
+            "displayName": team_info.get("displayName")
+        })
+
+    return teams
 
 def fetch_team_schedule(team_id=3):
     url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/schedule"
@@ -10,8 +27,6 @@ def fetch_team_schedule(team_id=3):
     response.raise_for_status()
     return response.json()
 
-
-from datetime import datetime
 
 def extract_game_locations(schedule_data):
     team_id = schedule_data.get("team", {}).get("id")
