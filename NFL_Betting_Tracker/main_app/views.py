@@ -7,6 +7,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from .services import fetch_team_schedule, extract_game_locations,fetch_all_nfl_teams
+from .forms import SearchForm
 
 from .models import Note
 
@@ -18,27 +19,18 @@ class Home(LoginView):
 def signup(request):
     error_message = ''
     if request.method == 'POST':
-        # This is how to create a 'user' form object
-        # that includes the data from the browser
+        
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            # This will add the user to the database
             user = form.save()
-            # This is how we log a user in
             login(request, user)
             return redirect('note_list')
         else:
             error_message = 'Invalid sign up - try again'
-    # A bad POST or a GET request, so render signup.html with an empty form
     form = UserCreationForm()
     context = {'form': form, 'error_message': error_message}
     return render(request, 'signup.html', context)
-    # Same as: 
-    # return render(
-    #     request, 
-    #     'signup.html',
-    #     {'form': form, 'error_message': error_message}
-    # )
+    
 
 class NoteListView(LoginRequiredMixin,ListView):
     model = Note
@@ -73,16 +65,18 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'notes/note_confirm_delete.html'
     success_url = reverse_lazy('note_list')
 
-def team_travel_view(request):
+def team_stats_view(request):
     team_id = int(request.GET.get("team_id", 3))
+    form = SearchForm(request.POST)
 
+    if form.is_valid():
+        team_id=form.cleaned_data["choices"]
+    else:
+        print(form.errors)
+
+    # all_teams = fetch_all_nfl_teams()
     schedule_data = fetch_team_schedule(team_id=team_id)
     parsed_games = extract_game_locations(schedule_data)
-    all_teams = fetch_all_nfl_teams()
-
-    return JsonResponse({
-        "teams": all_teams,
-        "schedule": parsed_games
-    }, safe=False)
-
+    
+    return render(request, 'stats.html',{'form':form,'games':parsed_games})
 
