@@ -80,7 +80,7 @@ def team_stats_view(request):
         else:
             print("Form errors:", form.errors)
     else:
-        form = SearchForm()  # Unbound form for initial render
+        form = SearchForm()
 
     return render(request, 'stats.html', {'form': form, 'games': parsed_games})
 
