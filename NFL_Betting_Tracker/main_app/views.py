@@ -8,6 +8,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from .services import fetch_team_schedule, extract_game_locations,fetch_all_nfl_teams
 from .forms import SearchForm
+from django.contrib.auth.decorators import login_required
+
 
 from .models import Note
 
@@ -65,6 +67,7 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'notes/note_confirm_delete.html'
     success_url = reverse_lazy('note_list')
 
+@login_required
 def team_stats_view(request):
     parsed_games = None
 
@@ -78,8 +81,6 @@ def team_stats_view(request):
             print("Form errors:", form.errors)
     else:
         form = SearchForm()  # Unbound form for initial render
-    
-    
 
     return render(request, 'stats.html', {'form': form, 'games': parsed_games})
 
