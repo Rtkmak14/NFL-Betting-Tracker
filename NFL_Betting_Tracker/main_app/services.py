@@ -1,6 +1,7 @@
 import requests
 from django.http import JsonResponse
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 def fetch_team_schedule(team_id=3):
@@ -29,6 +30,9 @@ def extract_game_locations(schedule_data):
 
             date_str = event["date"]
             game_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+            game_date_local = game_date.astimezone(ZoneInfo("America/Chicago"))
+            display_date = game_date_local.strftime("%Y-%m-%d %I:%M %p %Z")
+
 
             competitors = comp.get("competitors", [])
             home_away = None
@@ -51,7 +55,8 @@ def extract_game_locations(schedule_data):
   
 
             games.append({
-                "date": game_date.isoformat(),
+                "date": game_date,
+                "display_date":display_date,
                 "location": location,
                 "homeAway": home_away,
                 "opponent": opponent,
@@ -62,6 +67,13 @@ def extract_game_locations(schedule_data):
 
         except Exception as e:
             print(f"Skipping event due to error: {e}")
+    
+    for i in range(1,len(games)):
+        prev_date=games[i-1]["date"]
+        curr_date=games[i]["date"]
+        games[i]["days_since_last_game"] = (curr_date - prev_date).days
+    
+    games[0]["days_since_last_game"] = 0
 
     return games
 
