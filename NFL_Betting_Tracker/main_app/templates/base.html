@@ -13,6 +13,7 @@
     {% if user.is_authenticated %}
         <li><a href="{% url 'note_list' %}">My Notes</a></li>
         <li><a href="{% url 'note_create' %}">Add Note</a></li>
+        <li><a href="{% url 'team_stats' %}">Search</a></li>
         <li>
             <form method="post" action="{% url 'logout' %}">
                 {% csrf_token %}

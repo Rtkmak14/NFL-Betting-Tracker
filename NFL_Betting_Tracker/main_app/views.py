@@ -66,17 +66,20 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
     success_url = reverse_lazy('note_list')
 
 def team_stats_view(request):
-    team_id = int(request.GET.get("team_id", 3))
-    form = SearchForm(request.POST)
+    parsed_games = None
 
-    if form.is_valid():
-        team_id=form.cleaned_data["choices"]
+    if request.method == "POST":
+        form = SearchForm(request.POST)
+        if form.is_valid():
+            team_id = form.cleaned_data["choices"]
+            schedule_data = fetch_team_schedule(team_id=team_id)
+            parsed_games = extract_game_locations(schedule_data)
+        else:
+            print("Form errors:", form.errors)
     else:
-        print(form.errors)
-
-    # all_teams = fetch_all_nfl_teams()
-    schedule_data = fetch_team_schedule(team_id=team_id)
-    parsed_games = extract_game_locations(schedule_data)
+        form = SearchForm()  # Unbound form for initial render
     
-    return render(request, 'stats.html',{'form':form,'games':parsed_games})
+    
+
+    return render(request, 'stats.html', {'form': form, 'games': parsed_games})
 
