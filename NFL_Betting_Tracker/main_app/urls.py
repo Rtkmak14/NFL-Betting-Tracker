@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import NoteListView, NoteDetailView, NoteCreateView, NoteUpdateView, NoteDeleteView, team_stats_view, get_geocodes_view
+from .views import NoteListView, NoteDetailView, NoteCreateView, NoteUpdateView, NoteDeleteView, team_stats_view
 
 
 
@@ -13,5 +13,4 @@ urlpatterns = [
     path('notes/<int:pk>/update', NoteUpdateView.as_view(), name='note_update'),
     path('notes/<int:pk>/delete', NoteDeleteView.as_view(), name='note_delete'),
     path('team-stats/', team_stats_view, name='team_stats'),
-    path("test-geocode/",get_geocodes_view , name="temp_geocode")
 ]

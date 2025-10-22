@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
-from .services import fetch_team_schedule, extract_game_locations,fetch_all_nfl_teams, get_geocodes
+from .services import fetch_team_schedule, extract_game_locations, enrich_games_with_geocodes,enrich_games_with_home_coords,compute_home_travel_distances,TEAM_HOME_COORDS
 from .forms import SearchForm
 from django.contrib.auth.decorators import login_required
 
@@ -75,17 +75,18 @@ def team_stats_view(request):
         form = SearchForm(request.POST)
         if form.is_valid():
             team_id = form.cleaned_data["choices"]
+            team_name = dict(form.fields["choices"].choices).get(team_id)
+
             schedule_data = fetch_team_schedule(team_id=team_id)
-            parsed_games = extract_game_locations(schedule_data)
+            games=extract_game_locations(schedule_data)
+            games=enrich_games_with_geocodes(games)
+            games=enrich_games_with_home_coords(games,team_name)
+            parsed_games = compute_home_travel_distances(games)
         else:
             print("Form errors:", form.errors)
     else:
         form = SearchForm()
 
     return render(request, 'stats.html', {'form': form, 'games': parsed_games})
-
-def get_geocodes_view(request):
-    lat, lng = get_geocodes() 
-    return JsonResponse({"lat": lat, "lng": lng})
 
 

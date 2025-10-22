@@ -3,7 +3,42 @@ from django.http import JsonResponse
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import os
+from math import radians, sin, cos, sqrt, atan2
 
+TEAM_HOME_COORDS = {
+    "Arizona Cardinals": {"lat": 33.5276, "lng": -112.2626},  # State Farm Stadium
+    "Atlanta Falcons": {"lat": 33.7554, "lng": -84.4008},     # Mercedes-Benz Stadium
+    "Baltimore Ravens": {"lat": 39.2779, "lng": -76.6227},    # M&T Bank Stadium
+    "Buffalo Bills": {"lat": 42.7738, "lng": -78.7868},       # Highmark Stadium
+    "Carolina Panthers": {"lat": 35.2251, "lng": -80.8529},   # Bank of America Stadium
+    "Chicago Bears": {"lat": 41.8625, "lng": -87.6166},       # Soldier Field
+    "Cincinnati Bengals": {"lat": 39.0955, "lng": -84.5160},  # Paycor Stadium
+    "Cleveland Browns": {"lat": 41.5061, "lng": -81.6995},    # Cleveland Browns Stadium
+    "Dallas Cowboys": {"lat": 32.7473, "lng": -97.0945},      # AT&T Stadium
+    "Denver Broncos": {"lat": 39.7439, "lng": -105.0201},     # Empower Field at Mile High
+    "Detroit Lions": {"lat": 42.3389, "lng": -83.0458},       # Ford Field
+    "Green Bay Packers": {"lat": 44.5013, "lng": -88.0622},   # Lambeau Field
+    "Houston Texans": {"lat": 29.6847, "lng": -95.4107},      # NRG Stadium
+    "Indianapolis Colts": {"lat": 39.7601, "lng": -86.1638},  # Lucas Oil Stadium
+    "Jacksonville Jaguars": {"lat": 30.3239, "lng": -81.6375},# EverBank Stadium
+    "Kansas City Chiefs": {"lat": 39.0489, "lng": -94.4839},  # GEHA Field at Arrowhead Stadium
+    "Las Vegas Raiders": {"lat": 36.0906, "lng": -115.1839},  # Allegiant Stadium
+    "Los Angeles Chargers": {"lat": 33.9535, "lng": -118.3390},# SoFi Stadium
+    "Los Angeles Rams": {"lat": 33.9535, "lng": -118.3390},   # SoFi Stadium
+    "Miami Dolphins": {"lat": 25.9581, "lng": -80.2389},      # Hard Rock Stadium
+    "Minnesota Vikings": {"lat": 44.9740, "lng": -93.2580},   # U.S. Bank Stadium
+    "New England Patriots": {"lat": 42.0910, "lng": -71.2640},# Gillette Stadium
+    "New Orleans Saints": {"lat": 29.9508, "lng": -90.0811},  # Caesars Superdome
+    "New York Giants": {"lat": 40.8135, "lng": -74.0744},     # MetLife Stadium
+    "New York Jets": {"lat": 40.8135, "lng": -74.0744},       # MetLife Stadium
+    "Philadelphia Eagles": {"lat": 39.9008, "lng": -75.1675}, # Lincoln Financial Field
+    "Pittsburgh Steelers": {"lat": 40.4467, "lng": -80.0158}, # Acrisure Stadium
+    "San Francisco 49ers": {"lat": 37.4030, "lng": -121.9700},# Levi's Stadium
+    "Seattle Seahawks": {"lat": 47.5952, "lng": -122.3316},   # Lumen Field
+    "Tampa Bay Buccaneers": {"lat": 27.9758, "lng": -82.5033},# Raymond James Stadium
+    "Tennessee Titans": {"lat": 36.1664, "lng": -86.7714},    # Nissan Stadium
+    "Washington Commanders": {"lat": 38.9078, "lng": -76.8644}# Commanders Field
+}
 
 def fetch_all_nfl_teams():
     url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams"
@@ -92,9 +127,8 @@ def extract_game_locations(schedule_data):
 
     return games
 
-def get_geocodes():
+def get_geocodes(address):
     key = os.getenv("GOOGLE_MAPS_API_KEY")
-    address = "Soldier Field, Chicago, IL"
     url = "https://maps.googleapis.com/maps/api/geocode/json"
     params = {"address": address, "key": key}
 
@@ -110,5 +144,37 @@ def get_geocodes():
         return None, None
 
 
+def enrich_games_with_geocodes(games):
+    for game in games:
+        lat, lng = get_geocodes(game["location"])
+        game["lat"]=lat
+        game["lng"]=lng
+    return games
 
+def enrich_games_with_home_coords(games,team_name):
+    home = TEAM_HOME_COORDS.get(team_name)
+    for game in games:
+        game["home_lat"]=home["lat"]
+        game["home_lng"]=home["lng"]
+    return games
 
+def haversine(lat1, lng1, lat2, lng2):
+    R = 3958.8  # Earth radius in miles
+    dlat = radians(lat2 - lat1)
+    dlng = radians(lng2 - lng1)
+    a = sin(dlat / 2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
+
+def compute_home_travel_distances(games):
+    for game in games:
+        if game["homeAway"]=="away":
+            distance= haversine(
+                game["home_lat"],game["home_lng"],
+                game["lat"],game["lng"]
+            )
+            game["travel_from_home_miles"]=round(distance,1)
+        else:
+            game["travel_from_home_miles"]=0
+    
+    return games
