@@ -7,8 +7,9 @@
     <button type="submit">Submit</button>
   </form>
 
-{% for game in games %}
-    <ul>
+{% if games %}
+    {% for game in games %}
+      <ul>
         <li>Date: {{ game.display_date }}</li>
         <li>Location: {{ game.location }}</li>
         <li>Home vs Away: {{ game.homeAway }}</li>
@@ -16,9 +17,12 @@
         <li>Team Score: {{ game.team_score }}</li>
         <li>Opponent Score: {{ game.opp_score }}</li>
         <li>Margin: {{ game.margin }}</li>
-        <li>Days Between Games: {{ game.days_since_last_game}}</li>
+        <li>Days Between Games: {{ game.days_since_last_game }}</li>
         <li>Travel Distance from Home (mi): {{ game.travel_from_home_miles }}</li>
-    </ul>
-{% endfor %}
-
+      </ul>
+    {% endfor %}
+  {% else %}
+    <p>Loading stats or waiting for team selection…</p>
+  {% endif %}
 {% endblock %}
+
