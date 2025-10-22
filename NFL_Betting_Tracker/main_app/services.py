@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from datetime import datetime
+import os
 
 
 def fetch_all_nfl_teams():
@@ -21,7 +22,7 @@ def fetch_all_nfl_teams():
 
     return teams
 
-def fetch_team_schedule(team_id=34):
+def fetch_team_schedule(team_id):
     url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/schedule"
     response = requests.get(url)
     response.raise_for_status()
