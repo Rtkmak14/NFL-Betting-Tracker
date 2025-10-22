@@ -2,7 +2,6 @@ import requests
 from django.http import JsonResponse
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from datetime import datetime
 import os
 
 
@@ -92,5 +91,24 @@ def extract_game_locations(schedule_data):
     games[0]["days_since_last_game"] = 0
 
     return games
+
+def get_geocodes():
+    key = os.getenv("GOOGLE_MAPS_API_KEY")
+    address = "Soldier Field, Chicago, IL"
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {"address": address, "key": key}
+
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    data = response.json()
+
+    if data["status"] == "OK" and data["results"]:
+        coords = data["results"][0]["geometry"]["location"]
+        return coords["lat"], coords["lng"]
+    else:
+        print("Geocoding failed:", data.get("status"), data.get("error_message"))
+        return None, None
+
+
 
 
