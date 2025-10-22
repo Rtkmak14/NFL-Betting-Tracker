@@ -50,7 +50,8 @@ class NoteDetailView(LoginRequiredMixin,DetailView):
 
 class NoteCreateView(LoginRequiredMixin,CreateView):
     model = Note
-    fields = ['team', 'game_date', 'spread', 'total', 'moneyline', 'prior_week_winning_margin', 'travel_miles']
+    fields = ['team', 'game_date', 'location', 'home_away', 'opponent', 'team_score', 'opponent_score', 'margin', 'days_between_games', 'travel_miles']
+
     template_name = 'notes/note_form.html'
 
     def form_valid(self, form):
@@ -59,7 +60,7 @@ class NoteCreateView(LoginRequiredMixin,CreateView):
 
 class NoteUpdateView(LoginRequiredMixin,UpdateView):
     model=Note
-    fields = ['team', 'game_date', 'spread', 'total', 'moneyline', 'prior_week_winning_margin', 'travel_miles']
+    fields = ['team', 'game_date', 'location', 'home_away', 'opponent', 'team_score', 'opponent_score', 'margin', 'days_between_games', 'travel_miles']
     template_name='notes/note_form.html'
 
 class NoteDeleteView(LoginRequiredMixin,DeleteView):

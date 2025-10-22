@@ -1,17 +1,20 @@
 {% extends "base.html" %}
-{%block content%}
+{% block content %}
 <h1>Note Detail</h1>
 
-<h2>Game Date: {{note.game_date}}</h2>
-    <ul>
-        <li>Team: {{note.team}}</li>
-        <li>Spread: {{note.spread}}</li>
-        <li>Total: {{note.total}}</li>
-        <li>Moneyline: {{note.moneyline}}</li>
-        <li>Prior Week Winning Margin: {{note.prior_week_winning_margin}}</li>
-        <li>Travel Miles: {{note.travel_miles}}</li>
-    </ul>
-    <a href="{% url 'note_update' note.pk %}">Edit</a>
-    <a href="{% url 'note_delete' note.pk %}">Delete</a>
+<h2>Game Date: {{ note.game_date }}</h2>
+<ul>
+    <li>Team: {{ note.team }}</li>
+    <li>Location: {{ note.location }}</li>
+    <li>Home vs Away: {{ note.home_away }}</li>
+    <li>Opponent: {{ note.opponent }}</li>
+    <li>Team Score: {{ note.team_score }}</li>
+    <li>Opponent Score: {{ note.opponent_score }}</li>
+    <li>Margin: {{ note.margin }}</li>
+    <li>Days Between Games: {{ note.days_between_games }}</li>
+    <li>Travel Distance from Home (mi): {{ note.travel_miles }}</li>
+</ul>
 
-{%endblock%}
+<a href="{% url 'note_update' note.pk %}">Edit</a>
+<a href="{% url 'note_delete' note.pk %}">Delete</a>
+{% endblock %}
