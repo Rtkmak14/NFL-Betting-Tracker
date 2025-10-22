@@ -74,7 +74,7 @@ def team_stats_view(request):
     if request.method == "POST":
         form = SearchForm(request.POST)
         if form.is_valid():
-            team_id = form.cleaned_data["choices"]
+            team_id = int(form.cleaned_data["choices"])
             team_name = dict(form.fields["choices"].choices).get(team_id)
 
             schedule_data = fetch_team_schedule(team_id=team_id)
