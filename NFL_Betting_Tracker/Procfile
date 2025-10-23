@@ -1,1 +1,0 @@
-web: gunicorn <NFL_BETTING_TRACKER>.wsgi
