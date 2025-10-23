@@ -7,8 +7,10 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from .services import fetch_team_schedule, extract_game_locations, enrich_games_with_geocodes,enrich_games_with_home_coords,compute_home_travel_distances,TEAM_HOME_COORDS
-from .forms import SearchForm
+from .forms import SearchForm, NoteForm
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+
 
 
 from .models import Note
@@ -68,26 +70,39 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
     template_name = 'notes/note_confirm_delete.html'
     success_url = reverse_lazy('note_list')
 
+
 @login_required
 def team_stats_view(request):
     parsed_games = None
 
     if request.method == "POST":
-        form = SearchForm(request.POST)
-        if form.is_valid():
-            team_id = int(form.cleaned_data["choices"])
-            team_name = dict(form.fields["choices"].choices).get(team_id)
+        if "save_game" in request.POST:
+            note_form = NoteForm(request.POST)
+            if note_form.is_valid():
+                note = note_form.save(commit=False)
+                note.user = request.user
+                note.save()
+                messages.success(request, "Game saved to your notes!")
+                return redirect("team_stats_view")
+            else:
+                messages.error(request, "Failed to save game.")
+        elif "choices" in request.POST:
+            form = SearchForm(request.POST)
+            if form.is_valid():
+                team_id = int(form.cleaned_data["choices"])
+                team_name = dict(form.fields["choices"].choices).get(team_id)
 
-            schedule_data = fetch_team_schedule(team_id=team_id)
-            games=extract_game_locations(schedule_data)
-            games=enrich_games_with_geocodes(games)
-            games=enrich_games_with_home_coords(games,team_name)
-            parsed_games = compute_home_travel_distances(games)
-        else:
-            print("Form errors:", form.errors)
+                schedule_data = fetch_team_schedule(team_id=team_id)
+                games = extract_game_locations(schedule_data)
+                games = enrich_games_with_geocodes(games)
+                games = enrich_games_with_home_coords(games, team_name)
+                parsed_games = compute_home_travel_distances(games)
+            else:
+                print("Form errors:", form.errors)
     else:
         form = SearchForm()
 
     return render(request, 'stats.html', {'form': form, 'games': parsed_games})
+
 
 
