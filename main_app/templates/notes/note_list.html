@@ -2,7 +2,7 @@
 {% block content %}
 <h1>Note List</h1>
 
-<ul>
+<ul class='note-list'>
   {% for note in notes %}
     <li>
       <a href="{% url 'note_detail' note.pk %}">

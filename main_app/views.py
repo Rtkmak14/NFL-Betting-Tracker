@@ -82,7 +82,7 @@ def team_stats_view(request):
                 note = note_form.save(commit=False)
                 note.user = request.user
                 note.save()
-                return redirect("team_stats")
+                return redirect("note_list")
             else:
                 print("Failed to save game!")
 
