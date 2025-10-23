@@ -56,6 +56,13 @@ def fetch_all_nfl_teams():
 
     return teams
 
+def get_team_name(team_id,teams):
+    for team in teams:
+        if team["id"]==team_id:
+            return team["displayName"]
+    else:
+        return None
+
 def fetch_team_schedule(team_id):
     url = f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/schedule"
     response = requests.get(url)

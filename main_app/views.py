@@ -9,7 +9,6 @@ from django.http import JsonResponse
 from .services import fetch_team_schedule, extract_game_locations, enrich_games_with_geocodes,enrich_games_with_home_coords,compute_home_travel_distances,TEAM_HOME_COORDS
 from .forms import SearchForm, NoteForm
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 
 
 
@@ -74,6 +73,7 @@ class NoteDeleteView(LoginRequiredMixin,DeleteView):
 @login_required
 def team_stats_view(request):
     parsed_games = None
+    form = SearchForm()
 
     if request.method == "POST":
         if "save_game" in request.POST:
@@ -82,10 +82,10 @@ def team_stats_view(request):
                 note = note_form.save(commit=False)
                 note.user = request.user
                 note.save()
-                messages.success(request, "Game saved to your notes!")
-                return redirect("team_stats_view")
+                return redirect("team_stats")
             else:
-                messages.error(request, "Failed to save game.")
+                print("Failed to save game!")
+
         elif "choices" in request.POST:
             form = SearchForm(request.POST)
             if form.is_valid():
@@ -97,12 +97,27 @@ def team_stats_view(request):
                 games = enrich_games_with_geocodes(games)
                 games = enrich_games_with_home_coords(games, team_name)
                 parsed_games = compute_home_travel_distances(games)
-            else:
-                print("Form errors:", form.errors)
-    else:
-        form = SearchForm()
 
-    return render(request, 'stats.html', {'form': form, 'games': parsed_games})
+                for game in parsed_games:
+                    initial_data = {
+                        'team': team_name,
+                        'game_date': game['display_date'],
+                        'location': game['location'],
+                        'home_away': game['homeAway'],
+                        'opponent': game['opponent'],
+                        'team_score': game['team_score'],
+                        'opponent_score': game['opp_score'],
+                        'margin': game['margin'],
+                        'days_between_games': game['days_since_last_game'],
+                        'travel_miles': game['travel_from_home_miles'],
+                    }
+                    game['note_form'] = NoteForm(initial=initial_data)
+
+    return render(request, 'stats.html', {
+        'form': form,
+        'games': parsed_games,
+    })
+
 
 
 
