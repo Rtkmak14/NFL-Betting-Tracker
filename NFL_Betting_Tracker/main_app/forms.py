@@ -1,5 +1,7 @@
 from django import forms
 from .services import fetch_all_nfl_teams
+from .models import Note
+
 
 class SearchForm(forms.Form):
     
@@ -44,3 +46,31 @@ class SearchForm(forms.Form):
         choices=teams,
         required=True,
         )
+
+class NoteForm(forms.ModelForm):
+    class Meta:
+        model = Note
+        fields = [
+            'team',
+            'game_date',
+            'location',
+            'home_away',
+            'opponent',
+            'team_score',
+            'opponent_score',
+            'margin',
+            'days_between_games',
+            'travel_miles'
+        ]
+        widgets = {
+            'team': forms.HiddenInput(),
+            'game_date': forms.HiddenInput(),
+            'location': forms.HiddenInput(),
+            'home_away': forms.HiddenInput(),
+            'opponent': forms.HiddenInput(),
+            'team_score': forms.HiddenInput(),
+            'opponent_score': forms.HiddenInput(),
+            'margin': forms.HiddenInput(),
+            'days_between_games': forms.HiddenInput(),
+            'travel_miles': forms.HiddenInput()
+        }
